@@ -11,6 +11,7 @@ public class BallControll : MonoBehaviour
     [SerializeField] private float directionCorrectX;
     [SerializeField] private float directionCorrectY;
 
+    private Vector2 initialVelocity;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -21,23 +22,42 @@ public class BallControll : MonoBehaviour
         BallMovement();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void BallMovement()
     {
-        
+        Vector2 newVelocity = new Vector2(speedBall, Random.Range(-1 * speedBall, 1 * speedBall));
+        _rigidbody2D.linearVelocity = newVelocity;
+        initialVelocity = newVelocity;
+
+
+    }
+
+    public void LeftBallMovement()
+    {
+        Vector2 newVelocity = new Vector2(-speedBall,Random.Range(-1 * speedBall , 1 * speedBall));
+        _rigidbody2D.linearVelocity = newVelocity;
+        initialVelocity = newVelocity;
     }
 
 
-    private void BallMovement()
+    public void ResetBall()
     {
-        _rigidbody2D.linearVelocity = new Vector2(speedBall, speedBall);
-
+        transform.position = Vector2.zero;
+        BallMovement(); 
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         _audioSource.Play();
-        _rigidbody2D.linearVelocity += new Vector2(directionCorrectX, directionCorrectY);
+        //_rigidbody2D.linearVelocity += new Vector2(directionCorrectX, directionCorrectY);
+
+        Vector2 adjustedVelocity = _rigidbody2D.linearVelocity + new Vector2(directionCorrectX, directionCorrectY);
+
+        if (adjustedVelocity.magnitude < initialVelocity.magnitude)
+        {
+            adjustedVelocity = adjustedVelocity.normalized * initialVelocity.magnitude;
+        }
+
+        _rigidbody2D.linearVelocity = adjustedVelocity;
     }
 
 }
